@@ -3,8 +3,10 @@ const msgDiv = document.querySelector(".msg");
 const yesBtn = document.querySelector("#yes-btn");
 const noBtn = document.querySelector("#no-btn");
 const video = document.getElementById("bgVideo");
+const initialVideoSrc = video.dataset.initialSrc;
 
 let step = 1;
+let currentVideoSrc = "";
 
 const yesState = {
     image: "images/i10.png",
@@ -75,23 +77,47 @@ function renderMessage(blocks) {
     });
 }
 
+function playVideo() {
+    const playPromise = video.play();
+
+    if (playPromise instanceof Promise) {
+        playPromise.catch(() => {
+            // Ignore autoplay-related rejections after the source swap.
+        });
+    }
+}
+
+function setVideoSource(newSrc, { fadeIn = true } = {}) {
+    if (!newSrc) {
+        return;
+    }
+
+    if (currentVideoSrc === newSrc) {
+        playVideo();
+
+        if (fadeIn) {
+            video.style.opacity = 1;
+        }
+
+        return;
+    }
+
+    currentVideoSrc = newSrc;
+    video.src = newSrc;
+    video.load();
+    playVideo();
+
+    if (fadeIn) {
+        video.style.opacity = 1;
+    }
+}
+
 function changeVideoSmooth(newSrc) {
     video.style.transition = "opacity 0.5s ease";
     video.style.opacity = 0;
 
     setTimeout(() => {
-        video.src = newSrc;
-        video.load();
-
-        const playPromise = video.play();
-
-        if (playPromise instanceof Promise) {
-            playPromise.catch(() => {
-                // Ignore autoplay-related rejections after the source swap.
-            });
-        }
-
-        video.style.opacity = 1;
+        setVideoSource(newSrc);
     }, 500);
 }
 
@@ -129,3 +155,26 @@ noBtn.addEventListener("click", () => {
         }
     }
 });
+
+function loadInitialBackgroundVideo() {
+    if (!initialVideoSrc || currentVideoSrc) {
+        return;
+    }
+
+    setVideoSource(initialVideoSrc, { fadeIn: false });
+}
+
+window.addEventListener(
+    "load",
+    () => {
+        const scheduleLoad =
+            "requestIdleCallback" in window
+                ? () => window.requestIdleCallback(loadInitialBackgroundVideo, { timeout: 1200 })
+                : () => setTimeout(loadInitialBackgroundVideo, 400);
+
+        requestAnimationFrame(() => {
+            scheduleLoad();
+        });
+    },
+    { once: true }
+);
