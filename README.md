@@ -6,6 +6,7 @@ The project is designed as a playful single-page interaction where user choices 
 
 ## Live Demo
 
+- AWS CloudFront: [https://d3lrcs5kkqcuas.cloudfront.net](https://d3lrcs5kkqcuas.cloudfront.net)
 - GitHub Pages: [https://agarwalujala3-lang.github.io/VALENTINE-CHAUDHRAIN/](https://agarwalujala3-lang.github.io/VALENTINE-CHAUDHRAIN/)
 
 ## Preview
